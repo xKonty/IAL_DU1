@@ -72,12 +72,12 @@ void Stack_Error( int error_code ) {
  * @param stack Ukazatel na strukturu zásobníku
  */
 void Stack_Init( Stack *stack ) {
-	if(stack != NULL){
-		stack->array = malloc(STACK_SIZE*sizeof(*stack->array));
-		stack->topIndex = 0;
+	if(stack == NULL){
+		Stack_Error(SERR_INIT);
 	}
 	else{
-		Stack_Error(SERR_INIT);
+		stack->array = malloc(sizeof(stack->array[0])*STACK_SIZE);
+		stack->topIndex = -1;
 	}
 }
 
@@ -91,7 +91,7 @@ void Stack_Init( Stack *stack ) {
  * @returns true v případě, že je zásobník prázdný, jinak false
  */
 bool Stack_IsEmpty( const Stack *stack ) {
-	return(stack->topIndex == 0);
+	return(stack->topIndex == -1);
 }
 
 /**
@@ -107,7 +107,7 @@ bool Stack_IsEmpty( const Stack *stack ) {
  * @returns true v případě, že je zásobník plný, jinak false
  */
 bool Stack_IsFull( const Stack *stack ) {
-	return(stack->topIndex == STACK_SIZE-1);
+	return(stack->topIndex == STACK_SIZE - 1);
 }
 
 /**
@@ -127,7 +127,7 @@ void Stack_Top( const Stack *stack, char *dataPtr ) {
 		Stack_Error(SERR_TOP);
 	}
 	else{
-		*dataPtr = stack->array[stack->topIndex-1];
+		*dataPtr = stack->array[stack->topIndex];
 	}
 }
 
@@ -166,8 +166,8 @@ void Stack_Push( Stack *stack, char data ) {
 		Stack_Error(SERR_PUSH);
 	}
 	else{
-		stack->array[stack->topIndex] = data;
 		stack->topIndex++;
+		stack->array[stack->topIndex] = data;
 	}
 }
 
@@ -179,7 +179,7 @@ void Stack_Push( Stack *stack, char data ) {
  * @param stack Ukazatel na inicializovanou strukturu zásobníku
  */
 void Stack_Dispose( Stack *stack ) {
-	while(stack->topIndex != 0){
+	for(int i = stack->topIndex; i != - 1; i--){
 		Stack_Pop(stack);
 	}
 	free(stack->array);
